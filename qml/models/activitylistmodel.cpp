@@ -8,9 +8,19 @@
 #include <qml/models/walletqmlmodel.h>
 
 #include <QDateTime>
+#include <QMetaObject>
+#include <QThread>
 #include <QVariantList>
 
 #include <algorithm>
+#include <cassert>
+
+namespace {
+void assertModelThread(const QObject& model)
+{
+    assert(QThread::currentThread() == model.thread());
+}
+} // namespace
 
 ActivityListModel::ActivityListModel(WalletQmlModel *parent)
     : QAbstractListModel(parent)
@@ -35,7 +45,7 @@ int ActivityListModel::rowCount(const QModelIndex &parent) const
 
 void ActivityListModel::updateTransactionStatus(QSharedPointer<Transaction> tx) const
 {
-    if (m_wallet_model == nullptr || tx->isPendingRequest) {
+    if (m_wallet_model == nullptr || tx.isNull() || tx->isPendingRequest) {
         return;
     }
     interfaces::WalletTxStatus wtx;
@@ -50,7 +60,7 @@ void ActivityListModel::updateTransactionStatus(QSharedPointer<Transaction> tx) 
 
 void ActivityListModel::updateTransactionLabel(QSharedPointer<Transaction> tx) const
 {
-    if (m_wallet_model == nullptr) {
+    if (m_wallet_model == nullptr || tx.isNull()) {
         return;
     }
 
@@ -63,6 +73,9 @@ QVariant ActivityListModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     QSharedPointer<Transaction> tx = m_transactions.at(index.row());
+    if (tx.isNull())
+        return QVariant();
+
     updateTransactionStatus(tx);
 
     switch (role) {
@@ -125,6 +138,7 @@ QHash<int, QByteArray> ActivityListModel::roleNames() const
 
 void ActivityListModel::reload()
 {
+    assertModelThread(*this);
     beginResetModel();
     m_transactions.clear();
     refreshWallet();
@@ -160,6 +174,7 @@ QVariantMap ActivityListModel::transactionDetails(const QString& txid) const
 
 void ActivityListModel::setDisplayUnit(int unit)
 {
+    assertModelThread(*this);
     if (unit != m_display_unit) {
         m_display_unit = unit;
         if (!m_transactions.isEmpty()) {
@@ -220,6 +235,7 @@ void ActivityListModel::addPendingReceiveRequests()
 void ActivityListModel::addReceiveRequest(const QString& address, const QString& label,
                                           CAmount amount, qint64 timestamp, const QString& requestId)
 {
+    assertModelThread(*this);
     uint256 zero_hash;
     auto tx = QSharedPointer<Transaction>::create(zero_hash, timestamp,
         Transaction::RecvWithAddress, address, CAmount{0}, amount);
@@ -237,6 +253,7 @@ void ActivityListModel::addReceiveRequest(const QString& address, const QString&
 
 void ActivityListModel::updateReceiveRequest(const QString& requestId, const QString& label, CAmount amount)
 {
+    assertModelThread(*this);
     for (int i = 0; i < m_transactions.size(); ++i) {
         if (m_transactions[i]->isPendingRequest && m_transactions[i]->requestId == requestId) {
             m_transactions[i]->label = label.isEmpty() ? tr("Payment request") : label;
@@ -249,6 +266,7 @@ void ActivityListModel::updateReceiveRequest(const QString& requestId, const QSt
 
 void ActivityListModel::removePendingReceiveRequest(const QString& requestId)
 {
+    assertModelThread(*this);
     for (int i = 0; i < m_transactions.size(); ++i) {
         if (!m_transactions[i]->isPendingRequest || m_transactions[i]->requestId != requestId) {
             continue;
@@ -274,6 +292,7 @@ void ActivityListModel::removePendingReceiveRequest(const QString& requestId)
 
 void ActivityListModel::updateTransaction(const uint256& hash, const interfaces::WalletTxStatus& tx_status, int num_blocks, int64_t block_time)
 {
+    assertModelThread(*this);
     int index = findTransactionIndex(hash);
 
     if (index != -1) {
@@ -354,12 +373,14 @@ void ActivityListModel::subscribeToCoreSignals()
 {
     // Connect signals to wallet
     m_handler_transaction_changed = m_wallet_model->handleTransactionChanged([this](const uint256& hash, ChangeType status) {
-        interfaces::WalletTxStatus wtx;
-        int num_blocks;
-        int64_t block_time;
-        if (m_wallet_model->tryGetTxStatus(hash, wtx, num_blocks, block_time)) {
-            updateTransaction(hash, wtx, num_blocks, block_time);
-        }
+        QMetaObject::invokeMethod(this, [this, hash] {
+            interfaces::WalletTxStatus wtx;
+            int num_blocks;
+            int64_t block_time;
+            if (m_wallet_model->tryGetTxStatus(hash, wtx, num_blocks, block_time)) {
+                updateTransaction(hash, wtx, num_blocks, block_time);
+            }
+        }, Qt::QueuedConnection);
     });
 }
 
