@@ -117,6 +117,54 @@ TestCase {
         tryCompare(popup, "visible", false)
     }
 
+    // Issue #862: the console's input-row icons gave no hint of what they do, so
+    // each shows its accessible name as a tooltip on hover, above the row.
+    function test_console_input_icons_have_tooltips() {
+        const page = createDesktopWallets()
+        const expected = {
+            "consoleModeToggleButtonTooltip": "Search console output",
+            "consoleFontIncreaseButtonTooltip": "Increase console text size",
+            "consoleFontDecreaseButtonTooltip": "Decrease console text size",
+            "consoleClearButtonTooltip": "Clear console input or output"
+        }
+
+        for (const name in expected) {
+            const tooltip = findChild(page, name)
+            verify(tooltip !== null, name + " is missing")
+            compare(tooltip.text, expected[name])
+            verify(!tooltip.below, name + " must not cover the input row")
+            verify(!tooltip.active, name + " must stay hidden until hovered")
+        }
+    }
+
+    function test_console_input_tooltip_stays_inside_the_clipping_page() {
+        const page = createDesktopWallets()
+        const consoleTab = findChild(page, "consoleTabButton")
+        consoleTab.checked = true
+        tryCompare(consoleTab, "checked", true)
+
+        const consolePage = findChild(page, "commandConsole")
+        verify(consolePage !== null)
+        verify(consolePage.clip)
+        verify(consolePage.width > 0)
+
+        const tooltip = findChild(page, "consoleClearButtonTooltip")
+        verify(tooltip !== null)
+        tooltip.shown = true
+        verify(tooltip.item !== null)
+
+        const bubbleRight = tooltip.item.centerBubbleOnArrow
+            ? tooltip.width
+            : tooltip.width / 2 + tooltip.item.arrowWidth / 2
+              + tooltip.item.arrowHorizontalInset
+        const bubbleLeft = bubbleRight - tooltip.width
+        const leftInPage = tooltip.mapToItem(consolePage, bubbleLeft, 0).x
+        const rightInPage = tooltip.mapToItem(consolePage, bubbleRight, 0).x
+
+        verify(leftInPage >= 0)
+        verify(rightInPage <= consolePage.width)
+    }
+
     function test_receive_options_view_address_history_opens_settings_address_stack() {
         const page = createDesktopWallets()
         const receiveTab = findChild(page, "receiveTabButton")

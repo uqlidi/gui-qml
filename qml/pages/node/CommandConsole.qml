@@ -259,6 +259,12 @@ Page {
         HoverHandler {
             cursorShape: consoleIconButton.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
         }
+
+        HoverTooltip {
+            objectName: consoleIconButton.objectName + "Tooltip"
+            text: consoleIconButton.accessibleName
+            below: false
+        }
     }
 
     // Command input area

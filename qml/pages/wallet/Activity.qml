@@ -97,6 +97,11 @@ PageStack {
                 return value
             }
 
+            function defaultExportFileUrl() {
+                const stamp = Qt.formatDateTime(new Date(), "yyyy-MM-dd-HHmm")
+                return "file://" + walletController.homePath() + "/activity-" + stamp + ".csv"
+            }
+
             function exportActivity(path) {
                 const ok = activityFilterProxy.exportCsv(normalizeLocalPath(path))
                 exportSucceeded = ok
@@ -197,8 +202,11 @@ PageStack {
 
             FileDialog {
                 id: exportDialog
+                title: qsTr("Export activity to CSV")
                 defaultSuffix: "csv"
                 fileMode: FileDialog.SaveFile
+                currentFolder: "file://" + walletController.homePath()
+                currentFile: root.defaultExportFileUrl()
                 nameFilters: [qsTr("Comma separated file (*.csv)")]
                 onAccepted: root.exportActivity(exportDialog.selectedFile.toString())
             }
@@ -211,7 +219,10 @@ PageStack {
 
             header: Item {
                 id: pageHeader
+                objectName: "activityPageHeader"
                 implicitHeight: 50 + (root.filtersVisible ? filterRow.implicitHeight + 10 : 0)
+                // Let the header's hover tooltips draw over the activity list.
+                z: 1
 
                 RowLayout {
                     id: activityHeader
@@ -240,6 +251,7 @@ PageStack {
                         activeColor: Theme.color.orange
                         size: 30
                         iconSize: 22
+                        tooltipText: qsTr("Export activity to CSV")
                         onClicked: {
                             if (automationExportPathField.text.length > 0) {
                                 const exportPath = automationExportPathField.text
@@ -247,6 +259,7 @@ PageStack {
                                 root.exportActivity(exportPath)
                                 return
                             }
+                            exportDialog.currentFile = root.defaultExportFileUrl()
                             exportDialog.open()
                         }
                     }
@@ -262,6 +275,8 @@ PageStack {
                         iconColor: Theme.color.neutral7
                         activeColor: Theme.color.orange
                         size: 30
+                        tooltipText: root.filtersVisible ? qsTr("Hide search and filters")
+                                                         : qsTr("Search and filter activity")
                         onClicked: root.toggleFilters()
                     }
                 }

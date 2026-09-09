@@ -46,7 +46,6 @@
         <file>components/PaymentDetailOptionsPopup.qml</file>
         <file>components/QRCodePopup.qml</file>
         <file>components/ReceiveOptionsPopup.qml</file>
-        <file>components/Tooltip.qml</file>
         <file>components/LabeledValueField.qml</file>
         <file>components/MultipleRecipientsSummary.qml</file>
         <file>components/SingleRecipientSummary.qml</file>
@@ -69,6 +68,7 @@
         <file>controls/ExternalLink.qml</file>
         <file>controls/FocusBorder.qml</file>
         <file>controls/Header.qml</file>
+        <file>controls/HoverTooltip.qml</file>
         <file>controls/Icon.qml</file>
         <file>controls/IconButton.qml</file>
         <file>controls/InformationPage.qml</file>
@@ -98,6 +98,7 @@
         <file>controls/TextButton.qml</file>
         <file>controls/Theme.qml</file>
         <file>controls/ToggleButton.qml</file>
+        <file>controls/Tooltip.qml</file>
         <file>controls/utils.js</file>
         <file>controls/ValueInput.qml</file>
         <file>controls/WalletTypeListItem.qml</file>
