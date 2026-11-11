@@ -28,6 +28,7 @@
 #include <qml/buildinfo.h>
 #include <qml/clipboard.h>
 #include <qml/datadir.h>
+#include <qml/descriptorhighlighter.h>
 #include <qml/guiargs.h>
 #include <qml/legacy_settings_migration.h>
 #include <qml/onboarding_settings.h>
@@ -312,6 +313,7 @@ void RegisterQmlTypes(AppMode& app_mode, BuildInfo& build_info, Clipboard& clipb
     qmlRegisterType<QmlFileDialog>("org.bitcoincore.qt", 1, 0, "AppFileDialog");
     qmlRegisterType<BlockClockDial>("org.bitcoincore.qt", 1, 0, "BlockClockDial");
     qmlRegisterType<LineGraph>("org.bitcoincore.qt", 1, 0, "LineGraph");
+    qmlRegisterType<DescriptorHighlighter>("org.bitcoincore.qt", 1, 0, "DescriptorHighlighter");
     qmlRegisterUncreatableType<PeerDetailsModel>("org.bitcoincore.qt", 1, 0, "PeerDetailsModel", "");
     qmlRegisterUncreatableType<DebugLogModel>("org.bitcoincore.qt", 1, 0, "DebugLogModel", "");
     qmlRegisterUncreatableType<RpcConsoleModel>("org.bitcoincore.qt", 1, 0, "RpcConsoleModel", "");

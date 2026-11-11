@@ -5,6 +5,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import org.bitcoincore.qt 1.0
 
 import "../../controls"
 import "../../components"
@@ -273,6 +274,22 @@ OnboardingView {
             fieldBackgroundColor: Theme.color.neutral2
             errorText: root.importInfo.status === "invalid" ? root.importInfo.error : ""
             onTextEdited: walletController.clearWalletLoadStatus()
+        }
+
+        DescriptorHighlighter {
+            objectName: "watchOnlyImportHighlighter"
+            textDocument: root.watchOnly ? xpubEntry.textDocument : null
+            scriptColor: Theme.color.orange
+            originColor: Theme.color.neutral7
+            keyColor: Theme.color.neutral9
+            keyAlternateColor: Theme.color.neutral7
+            pathColor: Theme.color.blue
+            checksumColor: Theme.color.neutral6
+            jsonNameColor: Theme.color.purple
+            jsonValueColor: Theme.color.green
+            errorColor: Qt.rgba(Theme.color.red.r, Theme.color.red.g, Theme.color.red.b, 0.2)
+            errorLine: root.importInfo.status === "invalid" && root.importInfo.errorLine !== undefined
+                ? root.importInfo.errorLine : -1
         }
 
         ColumnLayout {
