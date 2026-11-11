@@ -151,6 +151,7 @@ TestCase {
         findChild(form, "createWalletNameInput").text = "Watch wallet"
         findChild(form, "watchOnlyXpubInput").text =
             "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"
+        findChild(form, "watchOnlyAddressType_bech32").clicked()
         findChild(form, "watchOnlyBirth_month").clicked()
         findChild(form, "createWalletFormCreateButton").clicked()
         tryVerify(function() { return findChild(wizard, "walletCreationReadyPage") !== null })
@@ -179,6 +180,7 @@ TestCase {
         findChild(form, "createWalletNameInput").text = "Onboarding watch wallet"
         findChild(form, "watchOnlyXpubInput").text =
             "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"
+        findChild(form, "watchOnlyAddressType_bech32").clicked()
         findChild(form, "watchOnlyBirth_month").clicked()
         findChild(form, "createWalletFormCreateButton").clicked()
         tryVerify(function() { return findChild(wizard, "walletCreationReadyPage") !== null })
