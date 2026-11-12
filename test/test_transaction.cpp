@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qml/models/transaction.h>
+#include <qml/datelocale.h>
 
 #include <chainparams.h>
 #include <interfaces/wallet.h>
@@ -70,6 +71,7 @@ private Q_SLOTS:
     void dateTimeString_usedAddressRequestKeepsDate();
     void updateStatus_setsCountsForBalance();
     void dateTimeString_localizesMonthNames();
+    void gregorianLocale_keepsScriptAndTerritory();
 };
 
 void TransactionTests::initTestCase()
@@ -196,6 +198,15 @@ void TransactionTests::dateTimeString_localizesMonthNames()
 
     QVERIFY(localized.contains(QStringLiteral("März")));
     QVERIFY(localized.contains(QStringLiteral("2000")));
+}
+
+void TransactionTests::gregorianLocale_keepsScriptAndTerritory()
+{
+    const QDate date{2026, 11, 10};
+    const QLocale serbian_latin{QmlUtil::GregorianLocale(QLocale{QLocale::Serbian, QLocale::LatinScript, QLocale::Serbia})};
+    QCOMPARE(serbian_latin.script(), QLocale::LatinScript);
+    QCOMPARE(serbian_latin.toString(date, "MMMM yyyy"), QStringLiteral("novembar 2026"));
+    QCOMPARE(QmlUtil::GregorianLocale(QLocale::c()).toString(date, "MMMM d, yyyy"), QStringLiteral("November 10, 2026"));
 }
 
 #ifdef BITCOINQML_NO_TEST_MAIN
